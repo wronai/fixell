@@ -1,0 +1,58 @@
+services:
+  # Ollama - zakomentowane, używaj lokalnego środowiska
+  # ollama:
+  #   image: ollama/ollama:latest
+  #   container_name: fixell-ollama
+  #   ports:
+  #     - "11434:11434"
+  #   volumes:
+  #     - ollama_data:/root/.ollama
+  #   deploy:
+  #     resources:
+  #       reservations:
+  #         devices:
+  #           - driver: nvidia
+  #             count: all
+  #             capabilities: [gpu]
+  #   networks:
+  #     - fixell-net
+
+  # Serwer naprawczy (uruchamiany na maszynie z GPU/Ollama)
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    container_name: fixell-server
+    ports:
+      - "8088:8088"
+      - "8089:8089"
+    environment:
+      - OLLAMA_HOST=http://host.docker.internal:11434
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - fixell-net
+    stdin_open: true
+    tty: true
+
+  # Klient (symuluje komputer w trybie awaryjnym)
+  client:
+    build:
+      context: .
+      dockerfile: Dockerfile.client
+    container_name: fixell-client
+    depends_on:
+      - server
+    environment:
+      - FIXER_SERVER=server:8088
+    networks:
+      - fixell-net
+    stdin_open: true
+    tty: true
+
+networks:
+  fixell-net:
+    driver: bridge
+
+# volumes:
+#   ollama_data:

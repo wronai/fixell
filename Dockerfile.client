@@ -1,0 +1,6 @@
+FROM fedora:latest
+RUN dnf install -y bash nc && dnf clean all
+WORKDIR /app
+COPY fixer.sh .
+RUN chmod +x fixer.sh
+CMD ["bash", "-c", "sleep 3 && ./fixer.sh ${FIXER_SERVER:-server:8088}"]

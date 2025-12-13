@@ -1,0 +1,6 @@
+FROM python:3.11-slim
+WORKDIR /app
+COPY fixer-server.py .
+RUN chmod +x fixer-server.py
+EXPOSE 8088
+CMD ["python3", "fixer-server.py", "8088", "qwen2.5:14b"]

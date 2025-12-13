@@ -1,0 +1,75 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fixell"
+version = "0.1.0"
+description = "Zdalna naprawa systemu Linux z AI (Ollama)"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "wronai"}
+]
+keywords = ["linux", "repair", "ai", "ollama", "fedora", "remote", "diagnostic"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: System :: Systems Administration",
+    "Topic :: Utilities",
+]
+requires-python = ">=3.8"
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov",
+    "flake8",
+    "mypy",
+    "black",
+    "isort",
+    "build",
+    "twine",
+]
+
+[project.scripts]
+fixell-server = "fixell.server:main"
+fixell-client = "fixell.client:main"
+
+[project.urls]
+Homepage = "https://github.com/wronai/fixell"
+Repository = "https://github.com/wronai/fixell"
+Documentation = "https://github.com/wronai/fixell/tree/main/docs"
+Issues = "https://github.com/wronai/fixell/issues"
+
+[tool.setuptools.packages.find]
+include = ["fixell*"]
+
+[tool.black]
+line-length = 120
+target-version = ['py38', 'py39', 'py310', 'py311']
+
+[tool.isort]
+profile = "black"
+line_length = 120
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"
