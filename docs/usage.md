@@ -126,15 +126,68 @@ CMD: journalctl --vacuum-size=100M
 
 ## Operator serwera
 
-Operator na serwerze może:
+Po uruchomieniu `make run-server` operator może kontrolować sesje i wysyłać komendy do klientów.
 
-1. **Obserwować sesję** - widzi wszystkie pytania i odpowiedzi
-2. **Wysyłać wiadomości** - prefix `to:` wysyła do klienta
-3. **Interweniować** - może przerwać lub pomóc
+### Dostępne komendy
 
+| Komenda | Opis |
+|---------|------|
+| `run: <cmd>` | Wyślij komendę do **automatycznego** wykonania (bez potwierdzenia klienta) |
+| `exec: <cmd>` | Wyślij komendę z **potwierdzeniem** (klient pyta t/n) |
+| `to: <msg>` | Wyślij wiadomość tekstową do klientów |
+| `status` | Pokaż liczbę aktywnych klientów i sesji HTTP |
+| `config` | Pokaż aktualną konfigurację (porty, model, ścieżki) |
+| `help` | Pokaż pomoc |
+
+### Przykłady użycia
+
+```bash
+# Automatyczne wykonanie komendy na kliencie (bez pytania)
+SERVER> run: uname -a
+[EXEC->KLIENT] uname -a
+# Klient wykonuje i wysyła wynik automatycznie
+
+# Komenda z potwierdzeniem (klient musi zaakceptować)
+SERVER> exec: systemctl restart NetworkManager
+[CMD->KLIENT] systemctl restart NetworkManager
+# Klient widzi: "[KOMENDA]: systemctl restart NetworkManager"
+# Klient pyta: "Wykonać? (t/n):"
+
+# Wysłanie wiadomości do klienta
+SERVER> to: Sprawdzam logi, proszę czekać...
+# Klient widzi: "[OPERATOR]: Sprawdzam logi, proszę czekać..."
+
+# Sprawdzenie statusu
+SERVER> status
+# Aktywnych klientów: 2, sesji HTTP: 1
+
+# Wyświetlenie konfiguracji
+SERVER> config
+# PORT=8088, HTTP_PORT=8089, MODEL=qwen2.5:14b
+# OLLAMA_HOST=http://localhost:11434, LOG_DIR=logs
 ```
-SERVER> to: Sprawdź też czy masz backup przed tą operacją
-[wiadomość wysłana do klienta]
+
+### Różnica między `run:` a `exec:`
+
+- **`run:`** - komenda wykonuje się **natychmiast** bez pytania użytkownika. Używaj do bezpiecznych komend diagnostycznych (np. `uname -a`, `df -h`, `cat /etc/os-release`).
+
+- **`exec:`** - klient **pyta o potwierdzenie** przed wykonaniem. Używaj do komend modyfikujących system (np. `systemctl restart`, `dnf install`, `rm`).
+
+### Logi sesji
+
+Wszystkie sesje są zapisywane w katalogu `logs/`:
+
+| Plik | Opis |
+|------|------|
+| `fixell_YYYYMMDD_HHMMSS.log` | Główny log serwera (techniczny) |
+| `session_IP_YYYYMMDD.log` | Log sesji (skrócony) |
+| `conversation_IP_YYYYMMDD.md` | **Pełna konwersacja** w formacie Markdown |
+
+Podgląd logów na żywo:
+```bash
+make logs
+# lub
+tail -f logs/*.log
 ```
 
 ## Konfiguracja

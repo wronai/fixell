@@ -102,12 +102,60 @@ curl -sL https://raw.githubusercontent.com/wronai/fixell/main/fixer-curl.sh | ba
 
 Pełna lista: [docs/models.md](docs/models.md)
 
+## Komendy serwera
+
+Po uruchomieniu `make run-server` operator może wysyłać komendy do podłączonych klientów:
+
+| Komenda | Opis |
+|---------|------|
+| `run: <cmd>` | Wyślij komendę do **automatycznego** wykonania (bez potwierdzenia) |
+| `exec: <cmd>` | Wyślij komendę z **potwierdzeniem** (klient pyta t/n) |
+| `to: <msg>` | Wyślij wiadomość tekstową do klientów |
+| `status` | Pokaż liczbę aktywnych klientów i sesji HTTP |
+| `config` | Pokaż aktualną konfigurację |
+| `help` | Pokaż pomoc |
+
+### Przykłady:
+
+```bash
+SERVER> run: uname -a
+# Klient automatycznie wykonuje i wysyła wynik
+
+SERVER> exec: systemctl restart NetworkManager
+# Klient pyta: "Wykonać? (t/n):"
+
+SERVER> to: Sprawdzam logi, proszę czekać...
+# Klient wyświetla wiadomość
+
+SERVER> status
+# Aktywnych klientów: 1, sesji HTTP: 0
+```
+
+## Tryb curl (prosty)
+
+Dla klientów bez skryptu - komunikacja przez HTTP:
+
+```bash
+# Zadaj pytanie
+curl -X POST http://192.168.1.100:8089/ask -d "system nie startuje"
+
+# AI odpowiada z gotową komendą curl do skopiowania:
+# curl -X POST http://192.168.1.100:8089/result -d "$(journalctl -xb | tail -100)"
+
+# Wyślij wynik komendy
+curl -X POST http://192.168.1.100:8089/result -d "$(journalctl -xb | tail -100)"
+
+# Reset sesji
+curl -X POST http://192.168.1.100:8089/reset
+```
+
 ## Bezpieczeństwo
 
-- ✅ Każda komenda wymaga potwierdzenia użytkownika
+- ✅ Każda komenda wymaga potwierdzenia użytkownika (tryb `exec:`)
+- ✅ Tryb `run:` tylko dla operatora serwera
 - ✅ Wykrywanie niebezpiecznych komend (rm -rf /, dd, etc.)
 - ✅ Operator serwera widzi wszystkie akcje
-- ✅ Brak automatycznego wykonywania
+- ✅ Pełne logi sesji w `logs/conversation_*.md`
 
 ## Dokumentacja
 

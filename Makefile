@@ -44,6 +44,9 @@ init-env:
 		echo "OLLAMA_HOST=http://localhost:11434" >> .env; \
 		echo "SERVER_HOST=$$(hostname -I | awk '{print $$1}')" >> .env; \
 		echo "" >> .env; \
+		echo "# Wybór modelu (true = pytaj przy starcie)" >> .env; \
+		echo "AUTO_SELECT_MODEL=false" >> .env; \
+		echo "" >> .env; \
 		echo "# Logowanie" >> .env; \
 		echo "LOG_DIR=logs" >> .env; \
 		echo "LOG_LEVEL=INFO" >> .env; \
@@ -54,6 +57,14 @@ init-env:
 	else \
 		echo ".env już istnieje"; \
 	fi
+
+select-model:
+	@echo "Uruchamiam wybór modelu..."
+	AUTO_SELECT_MODEL=true python3 fixer-server.py $(PORT)
+
+benchmark:
+	@echo "Uruchamiam benchmark jakości modeli 7b-14b..."
+	@python3 -c "import sys; sys.path.insert(0,'.'); from importlib import import_module; exec(open('fixer-server.py').read().split('# Utwórz katalog')[0]); run_quality_benchmark()"
 
 show-config:
 	@echo "=== Aktualna konfiguracja ==="
